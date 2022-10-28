@@ -2,6 +2,8 @@
 
 使用了 [Coding openapi接口](https://coding.net/help/openapi) 和 [Github token](https://github.com/settings/tokens)
 
+## 生成的 Github 仓库名字规则是`project-repo`，避免 Coding 仓库名字重复导致的冲突
+
 ### 1, 申请 Coding 的个人访问令牌token
 
 ![coding-token](https://user-images.githubusercontent.com/685167/198686187-b544c048-132e-41a6-aaf2-b19ce2dab75a.png)
@@ -13,7 +15,7 @@
 
 ### 3, 修改 `main.py` 中 `GITHUB_TOKEN`和`CODING_TOKEN`的值 
  
-### 4，执行脚本
+### 4, 执行脚本
 ```
 # 安装依赖
 pip3 install -r requirements.txt  

@@ -40,15 +40,17 @@ def query_coding(repo_save_dir, page=1):
         })
 
         for repo in repo_info['Response']['DepotData']['Depots']:
+            project_repo_name = '{}-{}'.format(project['Name'], repo['Name'])
             coding_repo_list.append({
                 'repo_name': repo['Name'],
                 'repo_ssh_url': repo['SshUrl'],
                 'repo_description': re.sub("[\n\t\b]", '', repo['Description']),
                 'project_name': project['Name'],
                 'project_archived': project['Archived'],
+                'project_repo_name': project_repo_name,
             })
-            os.system('git -C {} clone {}'.format(repo_save_dir, repo['SshUrl']))
-            print('clone to local OK: {}'.format(repo['Name']))
+            os.system('git -C {} clone {} {}'.format(repo_save_dir, repo['SshUrl'], project_repo_name))
+            print('clone to local OK: {}'.format(project_repo_name))
 
     total_page = math.ceil(total_count / 100)
     if total_page > page:
@@ -72,18 +74,18 @@ if __name__ == '__main__':
 
     github_repo_names = [repo.name for repo in user.get_repos()]
 
+    duplicate_names = []
+
     for v in coding_repo_list:
-        work_dir = '{}/{}'.format(repos_dir, v['repo_name'])
+        work_dir = '{}/{}'.format(repos_dir, v['project_repo_name'])
         print('go to dir: {}'.format(work_dir))
         os.chdir(work_dir)
 
-        print(os.getcwd())
+        if v['project_repo_name'] in github_repo_names:
+            duplicate_names.append(v['project_repo_name'])
+            continue
 
-        github_repo_name = v['repo_name']
-        if v['repo_name'] in github_repo_names:
-            github_repo_name = '{}-new'.format(v['repo_name'])
-
-        r = user.create_repo(github_repo_name, description=v['repo_description'], private=True)
+        r = user.create_repo(v['project_repo_name'], description=v['repo_description'], private=True)
         github_repo_full_name = r.full_name
         print('github repo created : {}'.format(github_repo_full_name))
 
@@ -91,3 +93,5 @@ if __name__ == '__main__':
         os.system('git push --set-upstream origin master')
         os.system('git push --tags')
         print('push to github OK, github repo: {}'.format(github_repo_full_name))
+
+    print('duplicate github names: ', duplicate_names)
